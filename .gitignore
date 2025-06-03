@@ -12,7 +12,7 @@ tsconfig.tsbuildinfo
 !jest.config.js
 !setup.js
 
-# Yarn 
+# Yarn
 
 .yarn/*
 !.yarn/patches
@@ -24,3 +24,5 @@ tsconfig.tsbuildinfo
 .pnp.*
 
 node_modules/
+
+**/tgr/.terragrunt-cache
