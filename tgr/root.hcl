@@ -10,7 +10,7 @@ remote_state {
   config = {
     bucket = "my-tf-state-dasd723"
 
-    key            = "tf.tfstate"
+    key            = "${path_relative_to_include()}/tf.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
     dynamodb_table = "my-lock-table"
