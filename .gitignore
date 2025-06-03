@@ -25,4 +25,4 @@ tsconfig.tsbuildinfo
 
 node_modules/
 
-**/tgr/.terragrunt-cache
+**/.terragrunt-cache
