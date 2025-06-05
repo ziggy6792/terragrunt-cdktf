@@ -3,10 +3,11 @@
   "app": "npx ts-node main.ts",
   "projectId": "41d8912e-1850-4ff8-bbc1-af7df07e7407",
   "sendCrashReports": "false",
+  "terraformProviders": [],
   "terraformModules": [
     {
-      "name": "imported-s3-bucket-with-env-tag",
-      "source": "./modules/s3_bucket_with_env_tag"
+      "name": "s3-dynamodb-remote-backend",
+      "source": "my-devops-way/s3-dynamodb-remote-backend/aws"
     }
   ],
   "context": {}
