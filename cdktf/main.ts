@@ -4,7 +4,7 @@ import { ParamStoreStack } from './stacks/param-store/ParamStoreStack';
 
 const app = new App();
 
-new DynamoStack(app, 'dynamo-stack', 'dev');
-// new ParamStoreStack(app, 'param-store-stack', 'dev');
+new DynamoStack(app, 'dynamo-stack-dev', 'dev');
+new ParamStoreStack(app, 'param-store-stack-dev', 'dev');
 
 app.synth();
