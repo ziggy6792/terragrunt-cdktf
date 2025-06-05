@@ -5,7 +5,7 @@ export const getConstructName = (scope: Construct, id: string) => `${TerraformSt
 
 export type Stage = 'dev' | 'prod';
 
-export const stages: Stage[] = ['dev'];
+export const stages: Stage[] = ['dev', 'prod'];
 
 export const prereqStackNames = stages.reduce((acc, stage) => {
   acc[stage] = `cdktf-prereq-${stage}`;

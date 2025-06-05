@@ -5,7 +5,7 @@ import { AwsDynamodbTable } from '../../.gen/modules/aws-dynamodb-table';
 
 export class DynamoStack extends AwsBaseStack {
   constructor(scope: Construct, id: string, stageName: 'dev' | 'prod' = 'dev') {
-    super(scope, id);
+    super(scope, id, stageName);
 
     const dynamoTable = new AwsDynamodbTable(this, 'dynamo-table', {
       name: `${stageName}-my-dynamodb-table-2`,

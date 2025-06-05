@@ -5,17 +5,17 @@ import { S3Backend, TerraformStack } from 'cdktf';
 import { provider } from '@cdktf/provider-aws';
 import * as path from 'path';
 import * as fs from 'fs';
-import { BACKEND_NAME } from '../config';
+import { BACKEND_NAME, PROJECT_NAME } from '../config';
 
 export class AwsBaseStack extends TerraformStack {
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, stageName: 'dev' | 'prod' = 'dev') {
     super(scope, id);
 
     new provider.AwsProvider(this, 'aws-provider', {
       region: 'ap-southeast-1',
     });
 
-    const prereqStateFile = path.join(process.env.INIT_CWD!, `./terraform.${BACKEND_NAME}.tfstate`);
+    const prereqStateFile = path.join(process.env.INIT_CWD!, `./terraform.${BACKEND_NAME}-${stageName}.tfstate`);
 
     let prereqState = null;
     try {

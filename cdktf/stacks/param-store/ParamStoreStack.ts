@@ -5,7 +5,7 @@ import { AwsSsmParameter } from '../../.gen/modules/aws-ssm-parameter';
 
 export class ParamStoreStack extends AwsBaseStack {
   constructor(scope: Construct, id: string, stageName: 'dev' | 'prod' = 'dev') {
-    super(scope, id);
+    super(scope, id, stageName);
 
     const paramStore = new AwsSsmParameter(this, 'param-store', {
       name: `/my-app-2/${stageName}/dynamo-table-id`,
