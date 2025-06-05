@@ -1,9 +1,10 @@
 # root.hcl
 
 locals {
-  root_dir = get_repo_root()
-  env_hcl  = find_in_parent_folders("env.hcl")
-  env      = read_terragrunt_config(local.env_hcl).locals.env
+  root_dir   = get_repo_root()
+  module_dir = "${local.root_dir}/tgr/modules"
+  env_hcl    = find_in_parent_folders("env.hcl")
+  env        = read_terragrunt_config(local.env_hcl).locals.env
 }
 
 remote_state {
@@ -15,7 +16,7 @@ remote_state {
   }
 
   config = {
-    bucket         = "my-tf-state-dasd723"
+    bucket         = "my-tf-state-${local.env}-dasd723"
     key            = "${path_relative_to_include()}/tf.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
