@@ -1,19 +1,74 @@
-output "dynamodb_table_arn" {
-  description = "ARN of the DynamoDB table"
-  value       = local.dynamodb_table_arn
+#######################
+# SSM Parameter values
+#######################
+
+locals {
+  # Making values nonsensitive, but keeping them in separate locals
+  stored_value = one(compact([
+    try(nonsensitive(aws_ssm_parameter.this[0].value), null),
+    try(nonsensitive(aws_ssm_parameter.ignore_value[0].value), null),
+  ]))
+  stored_insecure_value = one(compact([
+    try(aws_ssm_parameter.this[0].insecure_value, null),
+    try(aws_ssm_parameter.ignore_value[0].insecure_value, null),
+  ]))
+  raw_value = one(compact([local.stored_value, local.stored_insecure_value]))
 }
 
-output "dynamodb_table_id" {
-  description = "ID of the DynamoDB table"
-  value       = try(aws_dynamodb_table.this[0].id, aws_dynamodb_table.autoscaled[0].id, aws_dynamodb_table.autoscaled_gsi_ignore[0].id, "")
+output "raw_value" {
+  description = "Raw value of the parameter (as it is stored in SSM). Use 'value' output to get jsondecode'd value"
+  value       = local.raw_value
+  sensitive   = true
 }
 
-output "dynamodb_table_stream_arn" {
-  description = "The ARN of the Table Stream. Only available when var.stream_enabled is true"
-  value       = var.stream_enabled ? try(aws_dynamodb_table.this[0].stream_arn, aws_dynamodb_table.autoscaled[0].stream_arn, aws_dynamodb_table.autoscaled_gsi_ignore[0].stream_arn, "") : null
+output "value" {
+  description = "Parameter value after jsondecode(). Probably this is what you are looking for"
+  value       = try(jsondecode(local.raw_value), local.raw_value)
+  sensitive   = false
 }
 
-output "dynamodb_table_stream_label" {
-  description = "A timestamp, in ISO 8601 format of the Table Stream. Only available when var.stream_enabled is true"
-  value       = var.stream_enabled ? try(aws_dynamodb_table.this[0].stream_label, aws_dynamodb_table.autoscaled[0].stream_label, aws_dynamodb_table.autoscaled_gsi_ignore[0].stream_label, "") : null
+output "insecure_value" {
+  description = "Insecure value of the parameter"
+  value       = local.stored_insecure_value
+  sensitive   = false
+}
+
+output "secure_value" {
+  description = "Secure value of the parameter"
+  value       = local.stored_value
+  sensitive   = true
+}
+
+output "secure_type" {
+  description = "Whether SSM parameter is a SecureString or not?"
+  value       = local.secure_type
+}
+
+################
+# SSM Parameter
+################
+
+output "ssm_parameter_arn" {
+  description = "The ARN of the parameter"
+  value       = try(aws_ssm_parameter.this[0].arn, aws_ssm_parameter.ignore_value[0].arn, null)
+}
+
+output "ssm_parameter_version" {
+  description = "Version of the parameter"
+  value       = try(aws_ssm_parameter.this[0].version, aws_ssm_parameter.ignore_value[0].version, null)
+}
+
+output "ssm_parameter_name" {
+  description = "Name of the parameter"
+  value       = try(aws_ssm_parameter.this[0].name, aws_ssm_parameter.ignore_value[0].name, null)
+}
+
+output "ssm_parameter_type" {
+  description = "Type of the parameter"
+  value       = try(aws_ssm_parameter.this[0].type, aws_ssm_parameter.ignore_value[0].type, null)
+}
+
+output "ssm_parameter_tags_all" {
+  description = "All tags used for the parameter"
+  value       = try(aws_ssm_parameter.this[0].tags_all, aws_ssm_parameter.ignore_value[0].tags_all, null)
 }
