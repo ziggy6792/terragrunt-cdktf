@@ -8,6 +8,14 @@
     {
       "name": "s3-dynamodb-remote-backend",
       "source": "my-devops-way/s3-dynamodb-remote-backend/aws"
+    },
+    {
+      "name": "aws-ssm-parameter",
+      "source": "./modules/param-store"
+    },
+    {
+      "name": "aws-dynamodb-table",
+      "source": "./modules/dynamodb-table"
     }
   ],
   "context": {}
