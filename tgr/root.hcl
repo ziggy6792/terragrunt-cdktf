@@ -1,8 +1,9 @@
 # root.hcl
 
 locals {
-  root_dir   = get_repo_root()
-  module_dir = "${get_repo_root()}/tgr/modules"
+  root_dir = get_repo_root()
+  env_hcl  = find_in_parent_folders("env.hcl")
+  env      = read_terragrunt_config(local.env_hcl).locals.env
 }
 
 remote_state {
