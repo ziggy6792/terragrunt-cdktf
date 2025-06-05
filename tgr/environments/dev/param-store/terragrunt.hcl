@@ -9,7 +9,8 @@ dependency "dynamo" {
 }
 
 terraform {
-   source = "../../../modules/param-store"
+   source = "${get_repo_root()}/tgr/modules//param-store"
+   
 }
 
 inputs = {

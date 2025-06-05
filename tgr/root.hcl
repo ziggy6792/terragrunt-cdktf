@@ -1,4 +1,10 @@
 # root.hcl
+
+locals {
+  root_dir   = get_repo_root()
+  module_dir = "${get_repo_root()}/tgr/modules"
+}
+
 remote_state {
   backend = "s3"
 
@@ -8,8 +14,7 @@ remote_state {
   }
 
   config = {
-    bucket = "my-tf-state-dasd723"
-
+    bucket         = "my-tf-state-dasd723"
     key            = "${path_relative_to_include()}/tf.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
