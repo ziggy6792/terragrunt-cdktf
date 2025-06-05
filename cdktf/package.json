@@ -11,6 +11,8 @@
     "synth": "cdktf synth",
     "deploy": "cdktf deploy",
     "deploy:prereq": "cdktf deploy --app='yarn ts-node prereq.ts'",
+    "deploy:dev": "yarn cdktf deploy '*-dev' --auto-approve",
+    "deploy:prod": "yarn cdktf deploy '*-prod' --auto-approve",
     "compile": "tsc --pretty",
     "watch": "tsc -w",
     "test": "jest",

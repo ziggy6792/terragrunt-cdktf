@@ -1,11 +1,10 @@
 import { App } from 'cdktf';
-import { NamePickerStack } from './stacks/NamePickerStack';
-import { WeekPlannerStack } from './stacks/WeekPlannerStack';
-import { PROJECT_NAME } from './config';
+import { DynamoStack } from './stacks/dynamo/DynamoStack';
+import { ParamStoreStack } from './stacks/param-store/ParamStoreStack';
 
 const app = new App();
 
-new NamePickerStack(app, PROJECT_NAME);
-new NamePickerStack(app, PROJECT_NAME + '-prod', 'prod');
+new DynamoStack(app, 'dynamo-stack', 'dev');
+// new ParamStoreStack(app, 'param-store-stack', 'dev');
 
 app.synth();
