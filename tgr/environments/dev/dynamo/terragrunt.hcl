@@ -4,7 +4,7 @@ include "root" {
 }
 
 terraform {
-  source = "../modules/dynamodb-table"
+  source = "../../../modules/dynamodb-table"
 }
 
 inputs = {

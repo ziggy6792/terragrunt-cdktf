@@ -9,7 +9,7 @@ dependency "dynamo" {
 }
 
 terraform {
-   source = "../modules/param-store"
+   source = "../../../modules/param-store"
 }
 
 inputs = {
