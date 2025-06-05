@@ -4,7 +4,7 @@ include "root" {
 }
 
 terraform {
-  source = "tfr:///terraform-aws-modules/dynamodb-table/aws?version=4.4.0"
+  source = "../modules/dynamodb-table"
 }
 
 inputs = {

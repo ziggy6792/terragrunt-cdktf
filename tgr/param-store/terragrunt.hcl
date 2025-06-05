@@ -9,7 +9,7 @@ dependency "dynamo" {
 }
 
 terraform {
-   source = "tfr:///terraform-aws-modules/ssm-parameter/aws?version=1.1.2"
+   source = "../modules/param-store"
 }
 
 inputs = {
