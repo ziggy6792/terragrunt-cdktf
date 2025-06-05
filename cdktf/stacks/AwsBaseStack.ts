@@ -5,10 +5,14 @@ import { S3Backend, TerraformStack } from 'cdktf';
 import { provider } from '@cdktf/provider-aws';
 import * as path from 'path';
 import * as fs from 'fs';
-import { BACKEND_NAME, PROJECT_NAME } from '../config';
+import { BACKEND_NAME } from '../config';
+
+export interface AwsBaseStackProps {
+  stageName: 'dev' | 'prod';
+}
 
 export class AwsBaseStack extends TerraformStack {
-  constructor(scope: Construct, id: string, stageName: 'dev' | 'prod' = 'dev') {
+  constructor(scope: Construct, id: string, { stageName }: AwsBaseStackProps) {
     super(scope, id);
 
     new provider.AwsProvider(this, 'aws-provider', {
