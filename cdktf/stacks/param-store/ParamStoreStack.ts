@@ -14,7 +14,7 @@ export class ParamStoreStack extends AwsBaseStack {
     // const dynamoStack = this.context.getStack(DynamoStack);
 
     const paramStore = new AwsSsmParameter(this, 'param-store', {
-      name: `/my-app-2/${props.stageName}/dynamo-table-id`,
+      name: `/my-app-2/${props.env}/dynamo-table-id`,
       value: props.dynamoTable.dynamodbTableIdOutput,
       type: 'String',
     });

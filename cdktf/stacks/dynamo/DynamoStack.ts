@@ -9,7 +9,7 @@ export class DynamoStack extends AwsBaseStack {
     super(scope, id, props);
 
     this.dynamoTable = new AwsDynamodbTable(this, 'dynamo-table', {
-      name: `${props.stageName}-my-dynamodb-table-2`,
+      name: `${props.env}-my-dynamodb-table-2`,
       hashKey: 'id',
       billingMode: 'PAY_PER_REQUEST',
       attributes: [{ name: 'id', type: 'S' }],

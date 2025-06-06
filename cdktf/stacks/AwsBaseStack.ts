@@ -8,18 +8,18 @@ import * as fs from 'fs';
 import { BACKEND_NAME } from '../config';
 
 export interface AwsBaseStackProps {
-  stageName: 'dev' | 'prod';
+  env: 'dev' | 'prod';
 }
 
 export class AwsBaseStack extends TerraformStack {
-  constructor(scope: Construct, id: string, { stageName }: AwsBaseStackProps) {
+  constructor(scope: Construct, id: string, { env }: AwsBaseStackProps) {
     super(scope, id);
 
     new provider.AwsProvider(this, 'aws-provider', {
       region: 'ap-southeast-1',
     });
 
-    const prereqStateFile = path.join(process.env.INIT_CWD!, `./terraform.${BACKEND_NAME}-${stageName}.tfstate`);
+    const prereqStateFile = path.join(process.env.INIT_CWD!, `./terraform.${BACKEND_NAME}-${env}.tfstate`);
 
     let prereqState = null;
     try {
