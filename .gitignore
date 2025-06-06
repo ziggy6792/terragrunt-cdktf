@@ -26,3 +26,5 @@ tsconfig.tsbuildinfo
 node_modules/
 
 **/.terragrunt-cache
+
+**/.DS_Store
