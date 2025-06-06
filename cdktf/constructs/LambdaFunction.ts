@@ -1,8 +1,8 @@
+import * as path from 'path';
 import { lambdaFunction, iamRole, iamRolePolicyAttachment } from '@cdktf/provider-aws';
 import { LambdaFunctionConfig } from '@cdktf/provider-aws/lib/lambda-function';
+import { TerraformAsset, AssetType } from 'cdktf';
 import { Construct } from 'constructs';
-import { TerraformAsset, AssetType, Fn } from 'cdktf';
-import * as path from 'path';
 
 interface LambdaFunctionProps extends Omit<LambdaFunctionConfig, 'role' | 'filename'> {
   bundle: string;

@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
-import { AwsBaseStack, AwsBaseStackProps } from '../AwsBaseStack';
 import { AwsDynamodbTable } from '../../.gen/modules/aws-dynamodb-table';
+import { AwsBaseStack, AwsBaseStackProps } from '../AwsBaseStack';
 
 export class DynamoStack extends AwsBaseStack {
   public readonly dynamoTable: AwsDynamodbTable;

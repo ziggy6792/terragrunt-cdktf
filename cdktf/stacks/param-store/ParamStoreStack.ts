@@ -1,7 +1,7 @@
 import { Construct } from 'constructs';
-import { AwsBaseStack, AwsBaseStackProps } from '../AwsBaseStack';
-import { AwsSsmParameter } from '../../.gen/modules/aws-ssm-parameter';
 import { AwsDynamodbTable } from '../../.gen/modules/aws-dynamodb-table';
+import { AwsSsmParameter } from '../../.gen/modules/aws-ssm-parameter';
+import { AwsBaseStack, AwsBaseStackProps } from '../AwsBaseStack';
 
 interface ParamStoreStackProps extends AwsBaseStackProps {
   dynamoTable: AwsDynamodbTable;
@@ -13,7 +13,7 @@ export class ParamStoreStack extends AwsBaseStack {
 
     // const dynamoStack = this.context.getStack(DynamoStack);
 
-    const paramStore = new AwsSsmParameter(this, 'param-store', {
+    new AwsSsmParameter(this, 'param-store', {
       name: `/my-app-2/${props.env}/dynamo-table-id`,
       value: props.dynamoTable.dynamodbTableIdOutput,
       type: 'String',

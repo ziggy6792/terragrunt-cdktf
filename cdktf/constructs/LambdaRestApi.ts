@@ -1,4 +1,3 @@
-import { Construct } from 'constructs';
 import {
   lambdaFunction,
   apiGatewayRestApi,
@@ -8,6 +7,7 @@ import {
   apiGatewayIntegration,
   lambdaPermission,
 } from '@cdktf/provider-aws';
+import { Construct } from 'constructs';
 import { getConstructName } from '../utils/utils';
 
 interface LambdaRestApiProps {

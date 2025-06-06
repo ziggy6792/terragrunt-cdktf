@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable import/no-dynamic-require */
-import { Construct } from 'constructs';
-import { S3Backend, TerraformStack } from 'cdktf';
-import { provider } from '@cdktf/provider-aws';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
+import { provider } from '@cdktf/provider-aws';
+import { S3Backend, TerraformStack } from 'cdktf';
+import { Construct } from 'constructs';
 import { BACKEND_NAME } from '../config';
 
 export interface AwsBaseStackProps {

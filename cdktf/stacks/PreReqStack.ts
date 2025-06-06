@@ -1,7 +1,7 @@
-import { Construct } from 'constructs';
-import { TerraformOutput, TerraformStack } from 'cdktf';
 import { provider } from '@cdktf/provider-aws';
 import { DataAwsCallerIdentity } from '@cdktf/provider-aws/lib/data-aws-caller-identity';
+import { TerraformOutput, TerraformStack } from 'cdktf';
+import { Construct } from 'constructs';
 import { S3DynamodbRemoteBackend } from '../.gen/modules/s3-dynamodb-remote-backend';
 
 export interface PreReqStackProps {
