@@ -18,17 +18,17 @@ export class PreReqStack extends TerraformStack {
       region: 'ap-southeast-1',
     });
 
-    const bakend = new S3DynamodbRemoteBackend(this, 's3-dynamodb-remote-backend', {
+    const backend = new S3DynamodbRemoteBackend(this, 's3-dynamodb-remote-backend', {
       bucket: `${backendName}-${currentAccount.accountId}`,
       dynamodbTable: backendName,
     });
 
     new TerraformOutput(this, 'bucket', {
-      value: bakend.bucket,
+      value: backend.bucket,
     });
 
     new TerraformOutput(this, 'dynamodbTable', {
-      value: bakend.dynamodbTable,
+      value: backend.dynamodbTable,
     });
   }
 }
