@@ -9,17 +9,17 @@ locals {
 }
 
 terraform {
-  source = "${include.root.locals.module_dir}/frontend"
+  source = "${include.root.locals.module_dir}/static-site-with-config"
 }
 
 inputs = {
-  frontend_path = "../frontend/dist"  # Update this path to your actual frontend build directory
+  frontend_path = "${get_repo_root()}/out/dist"
   frontend_config = {
     CDKTF_API_URL = "https://api-dev.example.com"
     # Add more config properties here as needed
   }
-  region        = "ap-southeast-1"
-  stage         = local.env
-  ignore_files  = ["config/env.json"]
+  region = "ap-southeast-1"
+  stage  = local.env
+  # ignore_files is optional - config_file_path is automatically ignored
 }
 

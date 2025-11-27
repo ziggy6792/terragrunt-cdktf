@@ -1,5 +1,5 @@
 module "s3_dir_deploy" {
-  source = "../s3-dir-deploy"
+  source = "./s3-dir-deploy"
 
   path         = var.path
   bucket_name  = var.bucket_name

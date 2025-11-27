@@ -21,8 +21,14 @@ variable "stage" {
 }
 
 variable "ignore_files" {
-  description = "List of file paths (relative to frontend_path) to ignore during deployment"
+  description = "Additional list of file paths (relative to frontend_path) to ignore during deployment. The config_file_path will be automatically added."
   type        = list(string)
-  default     = ["config/env.json"]
+  default     = []
+}
+
+variable "config_file_path" {
+  description = "Path (relative to bucket root) where the frontend config JSON file will be stored"
+  type        = string
+  default     = "config/env.json"
 }
 
