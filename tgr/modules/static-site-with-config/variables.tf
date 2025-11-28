@@ -33,15 +33,9 @@ variable "config_file_path" {
 }
 
 variable "web_acl_id" {
-  description = "Optional AWS WAF Web ACL ID to associate with CloudFront distribution. If not provided, a basic WAF will be created."
+  description = "AWS WAF Web ACL ARN to associate with CloudFront distribution"
   type        = string
   default     = null
-}
-
-variable "create_waf" {
-  description = "Whether to create a WAF Web ACL for CloudFront (if web_acl_id is not provided)"
-  type        = bool
-  default     = true
 }
 
 variable "geo_restriction_type" {

@@ -4,31 +4,13 @@ locals {
   ignore_files = concat(var.ignore_files, [var.config_file_path])
 }
 
-# Create WAF if enabled and no web_acl_id provided
-module "waf" {
-  count  = var.create_waf && var.web_acl_id == null ? 1 : 0
-  source = "./waf"
-
-  name_prefix = local.name_prefix
-
-  # Pass the us-east-1 provider for CloudFront WAF (must be in us-east-1)
-  providers = {
-    aws.us_east_1 = aws.us_east_1
-  }
-}
-
-locals {
-  # Determine web_acl_id to pass to static_site module
-  web_acl_id_to_use = var.web_acl_id != null ? var.web_acl_id : (var.create_waf && length(module.waf) > 0 ? module.waf[0].web_acl_arn : null)
-}
-
 module "static_site" {
   source = "./static-site"
 
   path                      = var.frontend_path
   ignore_files              = local.ignore_files
   name_prefix               = local.name_prefix
-  web_acl_id                = local.web_acl_id_to_use
+  web_acl_id                = var.web_acl_id
   geo_restriction_type      = var.geo_restriction_type
   geo_restriction_locations = var.geo_restriction_locations
   enable_origin_failover    = var.enable_origin_failover

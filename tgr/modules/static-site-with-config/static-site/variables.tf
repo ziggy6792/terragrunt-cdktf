@@ -22,7 +22,7 @@ variable "name_prefix" {
 }
 
 variable "web_acl_id" {
-  description = "Optional AWS WAF Web ACL ID to associate with CloudFront distribution"
+  description = "Optional AWS WAF Web ACL ARN to associate with CloudFront distribution (CloudFront web_acl_id field accepts ARN)"
   type        = string
   default     = null
 }

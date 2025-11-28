@@ -8,6 +8,11 @@ locals {
   env = include.root.locals.env
 }
 
+dependency "waf" {
+  config_path = "../waf"
+  skip_outputs = false
+}
+
 terraform {
   source = "${include.root.locals.module_dir}/static-site-with-config"
 }
@@ -20,6 +25,7 @@ inputs = {
   }
   region = "ap-southeast-1"
   stage  = local.env
+  web_acl_id = dependency.waf.outputs.web_acl_arn
   # ignore_files is optional - config_file_path is automatically ignored
 }
 
