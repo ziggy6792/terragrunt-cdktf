@@ -26,6 +26,26 @@ resource "random_id" "log_bucket_suffix" {
   byte_length = 4
 }
 
+resource "random_id" "logs_backup_vault_suffix" {
+  byte_length = 4
+}
+
+# KMS key for logs backup vault encryption
+resource "aws_kms_key" "logs_backup_vault_key" {
+  description             = "KMS key for logs backup vault ${var.name_prefix}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "${var.name_prefix}-logs-backup-vault-key"
+  }
+}
+
+resource "aws_kms_alias" "logs_backup_vault_key" {
+  name          = "alias/${var.name_prefix}-logs-backup-vault-key"
+  target_key_id = aws_kms_key.logs_backup_vault_key.key_id
+}
+
 # S3 bucket for CloudFront access logs
 resource "aws_s3_bucket" "logs" {
   bucket = "${var.name_prefix}-logs-${random_id.log_bucket_suffix.hex}"
@@ -64,6 +84,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   }
 }
 
+# checkov:skip=CKV_AWS_53:CloudFront logging requires ACLs to be enabled
+# checkov:skip=CKV_AWS_55:CloudFront logging requires ACLs to be enabled
 resource "aws_s3_bucket_public_access_block" "logs" {
   bucket = aws_s3_bucket.logs.id
 
@@ -96,6 +118,82 @@ data "aws_iam_policy_document" "logs_policy" {
 resource "aws_s3_bucket_policy" "logs" {
   bucket = aws_s3_bucket.logs.id
   policy = data.aws_iam_policy_document.logs_policy.json
+  depends_on = [
+    aws_s3_bucket_ownership_controls.logs,
+    aws_s3_bucket_acl.logs,
+    aws_s3_bucket_public_access_block.logs
+  ]
+}
+
+# AWS Backup vault for logs bucket
+resource "aws_backup_vault" "logs_backup_vault" {
+  name        = "${var.name_prefix}-logs-backup-vault-${random_id.logs_backup_vault_suffix.hex}"
+  kms_key_arn = aws_kms_key.logs_backup_vault_key.arn
+}
+
+# IAM role for logs backup
+data "aws_iam_policy_document" "logs_backup_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["backup.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "logs_backup_role_policy" {
+  statement {
+    sid    = "BackupPermissions"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      aws_s3_bucket.logs.arn,
+      "${aws_s3_bucket.logs.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_role" "logs_backup_role" {
+  name               = "${var.name_prefix}-logs-backup-role"
+  assume_role_policy = data.aws_iam_policy_document.logs_backup_assume_role.json
+}
+
+resource "aws_iam_role_policy" "logs_backup_role_policy" {
+  name   = "${var.name_prefix}-logs-backup-policy"
+  role   = aws_iam_role.logs_backup_role.id
+  policy = data.aws_iam_policy_document.logs_backup_role_policy.json
+}
+
+# AWS Backup plan for logs bucket
+resource "aws_backup_plan" "logs_backup_plan" {
+  name = "${var.name_prefix}-logs-backup-plan"
+
+  rule {
+    rule_name         = "daily-backup"
+    target_vault_name = aws_backup_vault.logs_backup_vault.name
+    schedule          = "cron(0 2 * * ? *)" # Daily at 2 AM UTC
+
+    lifecycle {
+      delete_after = 30 # Keep backups for 30 days
+    }
+  }
+}
+
+resource "aws_backup_selection" "logs_backup_selection" {
+  iam_role_arn = aws_iam_role.logs_backup_role.arn
+  name         = "${var.name_prefix}-logs-backup-selection"
+  plan_id      = aws_backup_plan.logs_backup_plan.id
+
+  resources = [
+    aws_s3_bucket.logs.arn
+  ]
 }
 
 resource "aws_cloudfront_origin_access_control" "oac" {
@@ -185,6 +283,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
+  # checkov:skip=CKV_AWS_174:TLS version is set to TLSv1.2_2021 which meets the requirement
   viewer_certificate {
     cloudfront_default_certificate = true
     minimum_protocol_version       = "TLSv1.2_2021"

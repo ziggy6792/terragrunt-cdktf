@@ -26,10 +26,26 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
   restrict_public_buckets = true
 }
 
+# KMS key for backup vault encryption
+resource "aws_kms_key" "backup_vault_key" {
+  description             = "KMS key for backup vault ${var.name_prefix}"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "${var.name_prefix}-backup-vault-key"
+  }
+}
+
+resource "aws_kms_alias" "backup_vault_key" {
+  name          = "alias/${var.name_prefix}-backup-vault-key"
+  target_key_id = aws_kms_key.backup_vault_key.key_id
+}
+
 # AWS Backup protection for S3 bucket
 resource "aws_backup_vault" "backup_vault" {
   name        = "${var.name_prefix}-backup-vault-${random_id.backup_vault_suffix.hex}"
-  kms_key_arn = null # Use default AWS managed key
+  kms_key_arn = aws_kms_key.backup_vault_key.arn
 }
 
 resource "aws_backup_plan" "backup_plan" {
