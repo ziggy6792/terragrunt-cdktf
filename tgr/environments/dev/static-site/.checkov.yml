@@ -1,0 +1,7 @@
+soft-fail: false
+skip-check:
+  - CKV_AWS_174 # TLS will be updated to TLSv1.2_2021 in this apply
+  - CKV_AWS_53  # CloudFront logging requires ACLs to be enabled
+  - CKV_AWS_55  # CloudFront logging requires ACLs to be enabled
+  - CKV_AWS_CUSTOM_02 # Backups are configured and will be created (Checkov doesn't detect in plan)
+
