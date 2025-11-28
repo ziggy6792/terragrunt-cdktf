@@ -7,6 +7,17 @@ module "s3_dir_deploy" {
   name_prefix  = var.name_prefix
 }
 
+# Secondary S3 bucket for origin failover (CKV_AWS_310)
+module "s3_dir_deploy_failover" {
+  count  = var.enable_origin_failover ? 1 : 0
+  source = "./s3-dir-deploy"
+
+  path         = var.path
+  bucket_name  = var.bucket_name != null ? "${var.bucket_name}-failover" : null
+  ignore_files = var.ignore_files
+  name_prefix  = "${var.name_prefix}-failover"
+}
+
 resource "random_id" "oac_suffix" {
   byte_length = 4
 }
@@ -95,26 +106,62 @@ resource "aws_cloudfront_origin_access_control" "oac" {
   signing_protocol                  = "sigv4"
 }
 
+# Secondary OAC for failover bucket
+resource "aws_cloudfront_origin_access_control" "oac_failover" {
+  count                             = var.enable_origin_failover ? 1 : 0
+  name                              = "${var.name_prefix}-oac-failover-${random_id.oac_suffix.hex}"
+  description                       = "OAC for accessing failover S3 bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_distribution" "distribution" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
 
   # Primary origin
-  # Note: Origin failover (CKV_AWS_310) is typically not needed for static sites
-  # as S3 provides high availability. For production, consider adding a secondary
-  # S3 bucket in a different region or using S3 Cross-Region Replication.
-  # This can be added later if required for compliance.
   origin {
     domain_name              = module.s3_dir_deploy.bucket_regional_domain_name
     origin_id                = module.s3_dir_deploy.bucket_id
     origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
 
+  # Secondary origin for failover (CKV_AWS_310)
+  dynamic "origin" {
+    for_each = var.enable_origin_failover ? [1] : []
+    content {
+      domain_name              = module.s3_dir_deploy_failover[0].bucket_regional_domain_name
+      origin_id                = "${module.s3_dir_deploy_failover[0].bucket_id}-failover"
+      origin_access_control_id = aws_cloudfront_origin_access_control.oac_failover[0].id
+    }
+  }
+
+  # Origin group for failover (CKV_AWS_310)
+  dynamic "origin_group" {
+    for_each = var.enable_origin_failover ? [1] : []
+    content {
+      origin_id = "${module.s3_dir_deploy.bucket_id}-group"
+
+      failover_criteria {
+        status_codes = [500, 502, 503, 504]
+      }
+
+      member {
+        origin_id = module.s3_dir_deploy.bucket_id
+      }
+
+      member {
+        origin_id = "${module.s3_dir_deploy_failover[0].bucket_id}-failover"
+      }
+    }
+  }
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = module.s3_dir_deploy.bucket_id
+    target_origin_id       = var.enable_origin_failover ? "${module.s3_dir_deploy.bucket_id}-group" : module.s3_dir_deploy.bucket_id
     viewer_protocol_policy = "redirect-to-https"
 
     forwarded_values {
@@ -183,5 +230,40 @@ data "aws_iam_policy_document" "oac_policy" {
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = module.s3_dir_deploy.bucket_id
   policy = data.aws_iam_policy_document.oac_policy.json
+
+  depends_on = [
+    aws_cloudfront_distribution.distribution
+  ]
+}
+
+# Bucket policy for failover bucket
+data "aws_iam_policy_document" "oac_policy_failover" {
+  count = var.enable_origin_failover ? 1 : 0
+
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${module.s3_dir_deploy_failover[0].bucket_arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.distribution.arn]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy_failover" {
+  count  = var.enable_origin_failover ? 1 : 0
+  bucket = module.s3_dir_deploy_failover[0].bucket_id
+  policy = data.aws_iam_policy_document.oac_policy_failover[0].json
+
+  depends_on = [
+    aws_cloudfront_distribution.distribution
+  ]
 }
 

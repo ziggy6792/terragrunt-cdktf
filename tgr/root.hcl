@@ -31,5 +31,11 @@ generate "provider" {
 provider "aws" {
   region = "ap-southeast-1"
 }
+
+# Provider for CloudFront WAF (must be in us-east-1)
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
 EOF
 }

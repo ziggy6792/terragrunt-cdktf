@@ -39,3 +39,9 @@ variable "geo_restriction_locations" {
   default     = ["US", "CA", "GB", "AU", "NZ", "IE"] # Default to common English-speaking countries
 }
 
+variable "enable_origin_failover" {
+  description = "Enable origin failover with a secondary S3 bucket (for CKV_AWS_310 compliance)"
+  type        = bool
+  default     = false
+}
+

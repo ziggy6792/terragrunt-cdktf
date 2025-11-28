@@ -28,3 +28,8 @@ output "distribution_domain_name" {
   value       = aws_cloudfront_distribution.distribution.domain_name
 }
 
+output "failover_bucket_id" {
+  description = "ID of the failover S3 bucket (if origin failover is enabled)"
+  value       = var.enable_origin_failover ? module.s3_dir_deploy_failover[0].bucket_id : null
+}
+

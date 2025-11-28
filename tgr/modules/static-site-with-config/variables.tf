@@ -32,3 +32,33 @@ variable "config_file_path" {
   default     = "config/env.json"
 }
 
+variable "web_acl_id" {
+  description = "Optional AWS WAF Web ACL ID to associate with CloudFront distribution. If not provided, a basic WAF will be created."
+  type        = string
+  default     = null
+}
+
+variable "create_waf" {
+  description = "Whether to create a WAF Web ACL for CloudFront (if web_acl_id is not provided)"
+  type        = bool
+  default     = true
+}
+
+variable "geo_restriction_type" {
+  description = "Geo restriction type: 'none', 'whitelist', or 'blacklist'"
+  type        = string
+  default     = "whitelist"
+}
+
+variable "geo_restriction_locations" {
+  description = "List of country codes for geo restriction (required if restriction_type is whitelist or blacklist)"
+  type        = list(string)
+  default     = ["US", "CA", "GB", "AU", "NZ", "IE"]
+}
+
+variable "enable_origin_failover" {
+  description = "Enable origin failover with a secondary S3 bucket (for CKV_AWS_310 compliance)"
+  type        = bool
+  default     = true
+}
+
